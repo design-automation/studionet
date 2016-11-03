@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>StudioNET - A Graph Based Sharing Network</title>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" type="text/css" href="../template/html/assets/css/vendor.css">
+  <link rel="stylesheet" type="text/css" href="../template/html/assets/css/flat-admin.css">
+
+  <!-- Theme -->
+  <link rel="stylesheet" type="text/css" href="../template/html/assets/css/theme/blue-sky.css">
+  <link rel="stylesheet" type="text/css" href="../template/html/assets/css/theme/blue.css">
+  <link rel="stylesheet" type="text/css" href="../template/html/assets/css/theme/red.css">
+  <link rel="stylesheet" type="text/css" href="../template/html/assets/css/theme/yellow.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ng-tags-input/3.1.1/ng-tags-input.min.css">
+
+  <link rel='stylesheet' href='/user/stylesheets/style.css' />
+
+</head>
+<body ng-app="studionet">
+
+    <div class="app app-default">
+        
+        <script type="text/ng-template" id="sidebar-dropdown.tpl.html">
+          <div class="dropdown-background">
+            <div class="bg"></div>
+          </div>
+          <div class="dropdown-container">
+            {{list}}
+          </div>
+        </script>
+
+        <div class="app-container">
+
+
+            <!-- Main Graph View OR User View -->
+            <ui-view></ui-view>
+
+
+
+            <footer class="app-footer"> 
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="footer-copyright">
+                    Copyright © 2016 Lorem Ipsum
+                  </div>
+                </div>
+              </div>
+            </footer>
+        </div>
+
+    </div>
+    
+    <script type="text/javascript" src="../template/html/assets/js/vendor.js"></script>
+    <script type="text/javascript" src="../template/html/assets/js/app.js"></script>
+
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+    <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-resource.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.1/angular-ui-router.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ng-tags-input/3.1.1/ng-tags-input.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.0.4/ng-file-upload-all.min.js"></script>
+
+    <script type="text/javascript" src="/user/javascripts/angular-modal-service.js"></script>
+
+    <script type="text/javascript" src="/user/javascripts/angularApp.js"></script>
+    
+    <script type="text/javascript" src="/user/javascripts/services.js"></script>
+    <script type="text/javascript" src="/user/javascripts/controllers/HomeCtrl.js"></script>
+    <script type="text/javascript" src="/user/javascripts/controllers/UserCtrl.js"></script>
+<!--     <script type="text/javascript" src="/user/javascripts/controllers/ModuleAdminCtrl.js"></script> -->
+    <script type="text/javascript" src="/user/javascripts/controllers/DetailsModalCtrl.js"></script>
+
+    <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>  
+</body>
+</html>
+
+<script>
+
+$('li').click(function(){
+  $('li').removeClass('active');
+  $(this).addClass('active');
+})
+</script>

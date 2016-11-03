@@ -1,0 +1,79 @@
+<div class='row'>
+<div class="col-sm-12 col-xs-12">
+  <div class="card">
+    <div class="card-header">
+      New Group
+    </div>
+    <div class="card-body">
+      <div class="section">
+          <div class="section-body">
+            <div class="step">
+                <ul class="nav nav-tabs nav-justified" role="tablist">
+                    <li role="step" class="active">
+                        <a ui-sref='user.createGroup.step1' id="step1-tab" role="tab" data-toggle="tab">
+                            <div class="icon fa fa-info"></div>
+                            <div class="heading">
+                                <div class="title">Basic Details</div>
+                                <div class="description">Describe your group</div>
+                            </div>
+                        </a>
+                    </li>
+                    <li role="step">
+                        <a ui-sref='user.createGroup.step2'  role="tab" id="step2-tab" data-toggle="tab">
+                            <div class="icon fa fa-sitemap"></div>
+                            <div class="heading">
+                                <div class="title">Parent</div>
+                                <div class="description">Add a parent</div>
+                            </div>
+                        </a>
+                    </li>
+                    <li role="step">
+                        <a ui-sref='user.createGroup.step3' role="tab" id="step3-tab" data-toggle="tab">
+                            <div class="icon fa fa-users"></div>
+                            <div class="heading">
+                                <div class="title">Members</div>
+                                <div class="description">Add Users</div>
+                            </div>
+                        </a>
+                    </li>
+                    <li role="step">
+                        <a ui-sref='user.createGroup.step4' role="tab" id="step4-tab" data-toggle="tab">
+                            <div class="icon fa fa-cogs"></div>
+                            <div class="heading">
+                                <div class="title">Setting</div>
+                                <div class="description">Change access controls</div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel">
+                        <div class='row'>        
+                            <ui-view></ui-view>
+                            <div class="section-footer">
+                                <button type="button" class="btn btn-link pull-left">
+                                <a>Previous</a>
+                                <button type="button" class="btn btn-link pull-right">
+                                <a>Next</a>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('li').click( function(){
+
+      $('li').removeClass('active');
+      $(this).addClass('active');
+
+  })
+</script>

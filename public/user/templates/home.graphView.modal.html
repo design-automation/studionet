@@ -1,0 +1,68 @@
+<style>
+  .modal h3{
+
+     font-size: 14px;
+     font-weight: bold;
+     line-height: 20px;
+     text-transform: uppercase;
+     
+     margin: 0px;
+     padding: 0px;
+
+     display: inline-block;
+  }
+
+  .modal span{
+
+     font-size: 12px;
+     font-style: italic;
+     line-height: 20px;
+     text-transform: none;
+  }
+
+  .modal-header{
+    text-align: center;
+  }
+
+</style>
+
+
+
+
+<div class="modal fade" display='block'>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" ng-click="close()" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3 class='content-modal'>{{data.name}}</h3> 
+            </div>
+            <div class="modal-body">
+                 <div class='row'>
+                    <div class='col-sm-4'>
+                      <div>
+                        <div id='second-cy'></div>
+                        <hr>
+                        <button type="button" ng-click="answer()" class="btn btn-primary" id="btn-contribute" data-dismiss="modal">
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <div class='col-sm-8'>
+                      <div class='row'>
+                        <ul class="nav nav-tabs pull-right">
+                          <li class="active"><a href="#">Content</a></li>
+                          <li><a href="#">Statistics</a></li>
+                        </ul>
+                      </div>
+                      <div>
+                        {{data.extra.body}} 
+                        <br><br>
+                        Lorem ipsum Elit in consequat eu magna ut culpa laborum minim ut cillum in nostrud. Lorem ipsum Dolore sed tempor nostrud sed est eu aliqua do anim cupidatat nisi eiusmod sunt non nisi ut eu dolore et sunt esse mollit et ex Excepteur fugiat esse tempor esse qui pariatur culpa commodo qui sed dolore consectetur culpa laborum reprehenderit laboris pariatur amet ea in et officia fugiat velit consectetur occaecat id eiusmod ea elit aliquip exercitation officia occaecat minim incididunt aliquip in Excepteur voluptate consectetur pariatur nisi eiusmod elit ut dolor et tempor sed enim nulla tempor adipisicing non ut consectetur qui voluptate quis pariatur dolore labore ut sit dolor ea nisi pariatur proident et nisi ut culpa consectetur aute eiusmod qui nostrud nostrud sunt incididunt nisi nostrud pariatur nulla ut nulla in qui do dolor qui tempor Excepteur sint consectetur ex eiusmod aliquip irure esse dolore exercitation enim anim dolor reprehenderit commodo occaecat cupidatat veniam Ut ea ea velit nisi enim irure ut magna est enim reprehenderit dolor nostrud minim consequat ut qui eiusmod in magna ad amet commodo in commodo ex cupidatat esse laborum minim aliquip do eiusmod laboris veniam dolor irure mollit dolore consequat eu aliquip in aliquip dolore dolor cillum amet commodo fugiat proident velit nostrud anim Ut tempor esse in minim adipisicing nulla minim aliquip enim elit quis dolor ullamco cupidatat sit.
+                         <button type="button" ng-click="close()" class="btn btn-primary btn-block" data-dismiss="modal">Close</button>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,175 @@
+<link rel='stylesheet' href='./stylesheets/graph-style.css' />
+<script src="https://cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.min.js"></script>
+<script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.1.2/cytoscape-dagre.js"></script>
+
+
+<!-- Side Nav -->
+<aside class="app-sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a class="sidebar-brand" href="#"><span class="highlight">StudioNET</span> User</a>
+    <button type="button" class="sidebar-toggle">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+  <div class="sidebar-menu">
+    <ul class="sidebar-nav">
+
+      <!-- filters -->
+      <label class="radio-inline"><input type="radio" name="layout-radio" value='CIRCLE_GRAPH_LAYOUT' >Filter 1</label>
+      <label class="radio-inline"><input type="radio" name="layout-radio" value='CIRCLE_GRAPH_LAYOUT' >Filter 2</label>
+      <label class="radio-inline"><input type="radio" name="layout-radio" value='CIRCLE_GRAPH_LAYOUT' >Filter 3</label>
+      <label class="radio-inline"><input type="radio" name="layout-radio" value='CIRCLE_GRAPH_LAYOUT' >Filter 4</label>
+
+
+      <!-- user profile -->
+      <li>
+        <a ui-sref="user.details">
+          <div class="icon">
+            <i class="fa fa-cube" aria-hidden="true"></i>
+          </div>
+          <div class="title">User</div>
+        </a>
+      </li>
+
+
+
+      
+      <!-- admin dashboard : only if user is an admin -->
+      <li>
+        <a href="/admin" ng-if="user.superAdmin">
+          <div class="icon">
+            <i class="fa fa-tasks" aria-hidden="true"></i>
+          </div>
+          <div class="title">Admin Dashboard</div>
+        </a>
+      </li>
+    </ul>
+  </div>
+</aside>
+
+
+<!-- top nav -->
+<!-- <nav class="navbar navbar-default" id="navbar">
+  <div class="container-fluid">
+    <div class="navbar-collapse collapse in">
+      <ul class="nav navbar-nav navbar-mobile">
+        <li>
+          <button type="button" class="sidebar-toggle">
+            <i class="fa fa-bars"></i>
+          </button>
+        </li>
+        <li class="logo">
+          <a class="navbar-brand" href="#"><span class="highlight">StudioNET</span> User</a>
+        </li>
+        <li>
+          <button type="button" class="navbar-toggle">
+            <img class="profile-img" src="../template/html/assets/images/profile.png">
+          </button>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-left">
+        <li class="navbar-title" id='filter'>Filter
+            <div class="layouts input-group">
+
+              <label class="radio-inline"><input type="radio" name="layout-radio" value='CIRCLE_GRAPH_LAYOUT' >Circle</label>
+              <label class="radio-inline"><input type="radio" name="layout-radio" value='GRID_GRAPH_LAYOUT' checked>Grid</label>
+              <label class="radio-inline"><input type="radio" name="layout-radio" value='CONCENTRIC_GRAPH_LAYOUT'>Concentric</label>
+              <label class="radio-inline"><input type="radio" name="layout-radio" value='COSE_GRAPH_LAYOUT' >Cose</label>
+              <label class="radio-inline"><input type="radio" name="layout-radio" value='DAGRE_GRAPH_LAYOUT' >Dagre</label>
+              
+            </div>
+
+        </li>
+        <li class="navbar-search hidden-sm">
+          <input id="search" type="text" placeholder="Search..">
+          <button class="btn-search"><i class="fa fa-search"></i></button>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown profile">
+          <a ui-sref="home.userDetails" class="dropdown-toggle"  data-toggle="dropdown">
+            <img class="profile-img" src="../template/html/assets/images/profile.png">
+            <div class="title">Profile</div>
+          </a>
+          <div class="dropdown-menu">
+            <div class="profile-info">
+              <h4 class="username">{{user.name}}</h4>
+            </div>
+            <ul class="action">
+              <li>
+                <a ui-sref="home.userDetails">
+                  Profile
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  <span class="badge badge-danger pull-right">5</span>
+                  My Inbox
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  Setting
+                </a>
+              </li>
+              <li>
+                <a href="/logout">
+                  Logout
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav> -->
+
+
+<!-- div to host the information panel on hover -->
+<div id='content-block-hover'></div>
+
+<!-- actual graph container -->
+<div class='graph-container'>
+
+
+  
+  <div class='graph-controls'>
+    <img class='graph-nav-control zoom-extents' src='./img/expand.svg'/>
+  </div>
+
+    <div id='cy'></div>
+   
+</div>
+
+
+<!-- Modal -->
+<ui-view></ui-view>
+
+<!-- create a contribution -->
+<div class="btn-floating" id="help-actions">
+  <div class="btn-bg"></div>
+  <button type="button" class="btn btn-default btn-toggle" data-toggle="toggle" data-target="#help-actions">
+    <i class="icon fa fa-plus"></i>
+    <span class="help-text">Shortcut</span>
+  </button>
+  <div class="toggle-content">
+    <ul class="actions">
+      <li><a href="#">Website</a></li>
+      <li><a href="#">Documentation</a></li>
+      <li><a href="#">Issues</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+  </div>
+</div>
+
+
+
+
+<!-- Layout files for Cytoscape -->
+<script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-cose-bilkent/1.0.5/cytoscape-cose-bilkent.js"></script>
+ 
+<!-- include javascript functionality -->
+<script src="./javascripts/ui/graph-styles.js"></script>
+<script type="text/javascript" src="/user/javascripts/ui/user-ui.js"></script> 
+<script src="./javascripts/ui/graph-creator.js"></script>

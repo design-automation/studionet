@@ -1,0 +1,204 @@
+
+<div class="row">
+<div class="col-lg-12">
+<div class="card">
+<div class="card-body app-heading">
+  <img class="profile-img" src="{{user.avatar}}">
+  <div class="app-title">
+    <div class="title"><span class="highlight">{{user.name}}</span></div>
+    <div class="description">{{user.id}}</div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-lg-12">
+<div class="card card-tab">
+<div class="card-header">
+  <ul class="nav nav-tabs">
+    <li role="tab1" class="active">
+      <a href="#tab1" aria-controls="tab1" role="tab" data-toggle="tab">Profile</a>
+    </li>
+    <li role="tab3">
+      <a href="#tab3" aria-controls="tab3" role="tab" data-toggle="tab">Timeline</a>
+    </li>
+    <li role="tab4">
+      <a href="#tab4" aria-controls="tab4" role="tab" data-toggle="tab">Setting</a>
+    </li>
+  </ul>
+</div>
+<div class="card-body no-padding tab-content">
+  <div role="tabpanel" class="tab-pane active" id="tab1">
+    <div class="row">
+      <div class="col-md-3 col-sm-12">
+        <div class="section">
+          <div class="section-title"><i class="icon fa fa-user" aria-hidden="true"></i> Bio</div>
+          <div class="section-body __indent">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation</div>
+        </div>
+        <div class="section">
+          <div class="section-title"><i class="icon fa fa-book" aria-hidden="true"></i> Education</div>
+          <div class="section-body __indent">Computer Engineering, Khon Kaen University</div>
+        </div>
+      </div>
+      <div class="col-md-9 col-sm-12">
+        <div class="section">
+          <div class="section-title">Activities</div>
+          <div class="section-body">
+            <div class="media social-post">
+              <div class="media-left">
+                <a href="#">
+                  <img src="../assets/images/profile.png" />
+                </a>
+              </div>
+              <div class="media-body">
+                <div class="media-heading">
+                  <h4 class="title">{{user.name}}</h4>
+                  <h5 class="timeing">{{user.lastLoggedIn | date: 'medium'}}</h5>
+                </div>
+                <div class="media-content">Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate.</div>
+                <div class="media-action">
+                  <button class="btn btn-link"><i class="fa fa-thumbs-o-up"></i> 2 Like</button>
+                  <button class="btn btn-link"><i class="fa fa-comments-o"></i> 10 Comments</button>
+                </div>
+                <div class="media-comment">
+                  <input type="text" class="form-control" placeholder="comment...">
+                </div>
+              </div>
+            </div>
+            <div class="media social-post">
+              <div class="media-left">
+                <a href="#">
+                  <img src="../assets/images/profile.png" />
+                </a>
+              </div>
+              <div class="media-body">
+                <div class="media-heading">
+                  <h4 class="title">{{user.name}}</h4>
+                  <h5 class="timeing">{{user.lastLoggedIn | date: 'medium'}}</h5>
+                </div>
+                <div class="media-content">
+                  <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo.</p>
+                  <div class="attach">
+                    <a href="#" class="thumbnail">
+                      <img src="http://placehold.it/100x100" class="img-responsive">
+                    </a>
+                    <a href="#" class="thumbnail">
+                      <img src="http://placehold.it/100x100" class="img-responsive">
+                    </a>
+                  </div>
+                </div>
+                <div class="media-action">
+                  <button class="btn btn-link"><i class="fa fa-thumbs-o-up"></i> 2 Like</button>
+                  <button class="btn btn-link"><i class="fa fa-comments-o"></i> 10 Comments</button>
+                </div>
+                <div class="media-comment">
+                  <input type="text" class="form-control" placeholder="comment...">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div role="tabpanel" class="tab-pane" id="tab3">
+    ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nullaip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nullaip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+  </div>
+  <div role="tabpanel" class="tab-pane" id="tab4">
+    ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nullaip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nullaip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+  </div>
+</div>
+</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="container-fluid">
+    <div class="col-xs-3">
+      <div>
+        <h3>Logged In As:</h3>
+        <p><strong>Avatar: </strong> <img class='user-avatar' src={{user.avatar}}></p>
+        
+        <p><strong>Can Edit: </strong>{{user.canEdit}}</p>
+        <p><strong>Last Logged In: </strong>{{user.lastLoggedIn | date: 'medium'}}</p>
+        <p><strong>ID: </strong>{{user.id}}</p>
+        <p><strong>Super Admin: </strong>{{user.superAdmin}}</p>
+        <p>
+          <strong>Modules:</strong>
+          <ul ng-repeat="module in modules">
+            <li>{{module.code}}: {{module.name}} | Role: {{module.role}}</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="container-fluid">
+    <div class="col-xs-12">
+      <form name="myForm">
+        <fieldset>
+          <legend>Upload avatar</legend>
+          <br>Avatar:
+          <input type="file" ngf-select ng-model="picFile" name="avatar"    
+                 accept="image/*" ngf-max-size="2MB" required
+                 ngf-model-invalid="errorFile">
+          <i ng-show="myForm.file.$error.required">*required</i><br>
+          <i ng-show="myForm.file.$error.maxSize">File too large 
+              {{errorFile.size / 1000000|number:1}}MB: max 2M</i>
+          <img ng-show="myForm.file.$valid" ngf-thumbnail="picFile" class="thumb"> <button ng-click="picFile = null" ng-show="picFile">Remove</button>
+          <br>
+          <button ng-disabled="!myForm.$valid" 
+                  ng-click="uploadPic(picFile)">Submit</button>
+          <span class="progress" ng-show="picFile.progress >= 0">
+            <div style="width:{{picFile.progress}}%" 
+                ng-bind="picFile.progress + '%'"></div>
+          </span>
+          <span ng-show="picFile.result">Upload Successful</span>
+          <span class="err" ng-show="errorMsg">{{errorMsg}}</span>
+        </fieldset>
+        <br>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="container-fluid">
+    <form name="modelForm">
+        <fieldset>
+          <legend>Upload models</legend>
+          <br>Model:
+          <input type="file" ngf-select ng-model="modelFile" name="model"    
+                 required ngf-model-invalid="errorFile">
+          <i ng-show="modelForm.file.$error.required">*required</i><br>
+          <br>
+          <button ng-disabled="!modelForm.$valid" 
+                  ng-click="uploadModel(modelFile)">Submit</button>
+          <span class="progress" ng-show="modelFile.progress >= 0">
+            <div style="width:{{modelFile.progress}}%" 
+                ng-bind="modelFile.progress + '%'"></div>
+          </span>
+          <span ng-show="modelFile.result">Upload Successful</span>
+          <span class="err" ng-show="errorMsg">{{errorMsg}}</span>
+        </fieldset>
+        <br>
+      </form>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="container-fluid">
+  <fieldset>
+    <legend>Download models</legend>
+    <div ng-repeat="userModel in userModels">
+      <a href="/uploads/{{user.nusOpenId}}/models/{{userModel.id}}" download="{{userModel.name}}">Download {{userModel.name}}</a>
+    </div>
+  </fieldset>
+  </div>
+</div>
+  

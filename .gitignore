@@ -1,3 +1,4 @@
+.DB_Store
 node_modules/
 uploads/
 run/
@@ -11,3 +12,5 @@ env.txt
 studionet.sublime-workspace
 studionet.sublime-project
 .sass-cache
+syntheticdb.mdown
+logs/

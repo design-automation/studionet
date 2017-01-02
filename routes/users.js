@@ -1,145 +1,181 @@
 var express = require('express');
 var router = express.Router();
 var auth = require('./auth');
-var apiCall = require('./apicall');
 var db = require('seraph')({
-	server: process.env.SERVER_URL || 'http://localhost:7474/', // 'http://studionetdb.design-automation.net'
-	user: process.env.DB_USER,
-	pass: process.env.DB_PASS
+  server: process.env.SERVER_URL || 'http://localhost:7474/', // 'http://studionetdb.design-automation.net'
+  user: process.env.DB_USER,
+  pass: process.env.DB_PASS
 });
 
 
 // route: /api/users
 router.route('/')
 
-	// return all users
-	.get(auth.ensureAuthenticated, auth.ensureSuperAdmin, function(req, res){
+  // return all users
+  .get(auth.ensureAuthenticated, auth.ensureSuperAdmin, function(req, res){
+    var query = [
+      'MATCH (u:user)',
+      'RETURN {id: id(u), name: u.name, avatar: u.avatar}'
+    ].join('\n');
 
-		/*
-		var query = "MATCH path=(u:user)-[:CREATED|VIEWED|UPLOADED|MEMBER*0..1]-(p)\nRETURN path";
+    db.query(query, function(error, result){
+      if (error) {
+        console.log('Error retrieving all users: ', error);
+      }
+      else {
+        res.send(result);
+      }
+    });
+  })
 
-		apiCall(query, function(data){
-			res.send(data);
-		});
-		*/
-		
-		var query = [
-			'MATCH (u:user) WITH u',
-			'OPTIONAL MATCH (u)-[c:CREATED]->(p) WITH u, collect({id: id(p), contributionTypes: p.contributionTypes}) AS contributions',
-			'OPTIONAL MATCH (u)-[v:VIEWED]->(e) WITH u, contributions, collect({count: v.count, id: id(e)}) AS views',
-			'OPTIONAL MATCH (u)-[r:UPLOADED]->(f) WITH u, contributions, views, collect({id: id(f), type:f.type}) AS uploads',
-			'OPTIONAL MATCH (m)-[z:MEMBER]->(u) WITH u, contributions, views, uploads, collect({role: z.role, id: id(m)}) AS modules',
-			'RETURN {id: id(u), year: u.year, nusOpenId: u.nusOpenId, canEdit: u.canEdit, name: u.name, lastLoggedIn: u.lastLoggedIn, avatar: u.avatar, superAdmin: u.superAdmin, contributions: contributions, views: views, uploads: uploads, modules: modules}'
-		].join('\n');
+  // add a new user
+  .post(auth.ensureAuthenticated, function(req, res){
+    
+    // TODO: Create constraint on nusOpenId
+    var query = [
+      'CREATE (u:user {\
+                        nusOpenId: {nusOpenIdParam},\
+                        canEdit: {canEditParam},\
+                        name: {nameParam},\
+                        isAdmin: {isAdminParam},\
+                        addedBy: {addedByParam},\
+                        addedOn: {addedOnParam},\
+                        avatar: {avatarParam},\
+                        joinedOn: {joinedOnParam},\
+                        lastLoggedIn: {lastLoggedInParam},\
+                        filters: {filtersParam},\
+                        filterNames: {filterNamesParam}\
+                       })',
+      'RETURN u'
+    ].join('\n');
 
+    var params = {
+      nusOpenIdParam: req.body.nusOpenId,
+      canEditParam: true, //req.body.canEdit,
+      nameParam: req.body.name,
+      isAdminParam: req.body.isAdmin, 
+      addedByParam: req.user.id,
+      addedOnParam: Date.now(),
+      avatarParam: "/assets/images/avatar.png",
+      joinedOnParam: -1,  // -1 as default
+      lastLoggedInParam: -1, // -1 as default
+      filtersParam: [],
+      filterNamesParam: []
+    };
 
-		db.query(query, function(error, result){
-			if (error)
-				console.log('Error retrieving all users: ', error);
-			else
-				res.send(result);
-		});
+    /*
+     *
+     *  Only for testing and creating synthetic data; 
+     *  Remove in production
+     *
+     * 
+     */
+    if(auth.ensureSuperAdmin && req.body.addedBy && req.body.addedOn){
 
-	})
+      params.addedByParam = parseInt(req.body.addedBy);
+      params.addedOnParam = new Date(req.body.addedOn).getTime();
 
-	// add a new user
-	.post(auth.ensureAuthenticated, auth.ensureSuperAdmin, function(req, res){
-		
-		var query = [
-			'CREATE (u:user {name: {nameParam}, nusOpenId: {nusOpenIdParam}, canEdit: {canEditParam}, year: {yearParam}, lastLoggedIn: {lastLoggedInParam}, superAdmin: {superAdminParam}})',
-			'RETURN u'
-		].join('\n');
+    }
 
-		var params = {
-			nameParam: req.body.name,
-			nusOpenIdParam: req.body.nusOpenId,
-			canEditParam: req.body.canEdit,
-			yearParam: req.body.year,
-			lastLoggedInParam: Date.now(),
-			superAdminParam: false
-		};
+    db.query(query, params, function(error, result){
+      if (error)
+        console.log('Error creating new user: ', error);
+      else
+        res.send(result[0]);
+    });
 
-		db.query(query, params, function(error, result){
-			if (error)
-				console.log('Error creating new user: ', error);
-			else
-				res.send(result[0]);
-		});
-
-	});
+  });
 
 // route: /api/users/:userId
 router.route('/:userId')
 
-	// return a user
-	.get(auth.ensureAuthenticated, function(req, res){
+  // return a user
+  .get(auth.ensureAuthenticated, function(req, res){
+        var query = [
+          'MATCH (u:user) WHERE ID(u)={userIdParam}',
+          'WITH u',
+          'OPTIONAL MATCH p1=(g:group)-[r:MEMBER]->(u)',
+          'WITH collect({id: id(g), name: g.name, role: r.role}) as groups, u',
+          'OPTIONAL MATCH p2=(c:contribution)<-[r1:CREATED]-(u)',
+          'WITH groups, collect({id: id(c), title: c.title}) as contributions, u',
+          'OPTIONAL MATCH p3=(t:tag)<-[r1:CREATED]-(u)',
+          'WITH groups, collect({id: id(t), name: t.name}) as tags, contributions, u',
+          'RETURN {\
+                    name: u.name,\
+                    avatar: u.avatar,\
+                    joinedOn: u.joinedOn,\
+                    lastLoggedIn: u.lastLoggedIn,\
+                    id: id(u),\
+                    groups: groups,\
+                    contributions: contributions,\
+                    tags: tags\
+          }'
+        ].join('\n');
 
-			var query = "MATCH path=(u:user)-[*0..1]-(p) WHERE id(u)=" + req.params.userId +"\nRETURN path";
-			apiCall(query, function(data){
-				res.send(data);
-			})
+        var params = {
+          userIdParam: parseInt(req.params.userId)
+        };
 
+        db.query(query, params, function(error, result){
+          if (error){
+            res.send(error);
+            console.log('Error getting user profile: ' +  parseInt(req.params.userId) + ', ' + error);
+          }
+          else
+            // send back the profile with new login date
+            res.send(result[0]);
+        });
+  })
 
-			/*
-			var query = [
-				'MATCH (u:user) WHERE ID(u)='+req.params.userId+ ' WITH u',
-				'MATCH (a)-[r]-(u)',
-				'RETURN a,r,u'
-				/*
-				'OPTIONAL MATCH (u)-[c:CREATED]->(p) WITH u, collect({id: id(p), contributionTypes: p.contributionTypes}) AS contributions',
-				'OPTIONAL MATCH (u)-[v:VIEWED]->(e) WITH u, contributions, collect({count: v.count, id: id(e)}) AS views',
-				'OPTIONAL MATCH (u)-[r:UPLOADED]->(f) WITH u, contributions, views, collect({id: id(f), type:f.type}) AS uploads',
-				'OPTIONAL MATCH (m)-[z:MEMBER]->(u) WITH u, contributions, views, uploads, collect({role: z.role, id: id(m)}) AS modules',
-				'RETURN {id: id(u), year: u.year, nusOpenId: u.nusOpenId, canEdit: u.canEdit, name: u.name, lastLoggedIn: u.lastLoggedIn, avatar: u.avatar, superAdmin: u.superAdmin, contributions: contributions, views: views, uploads: uploads, modules: modules}'
-				
-			].join('\n');
+  // update a user
+  .put(auth.ensureAuthenticated, auth.ensureSuperAdmin, function(req, res){
+    var query = [
+      'MATCH (u:user) WHERE ID(u)={userIdToEditParam}',
+      'SET u.nusOpenId={nusOpenIdParam}, u.canEdit={canEditParam},',
+      'u.name={nameParam}, u.isAdmin={isAdminParam}',
+      'RETURN u'
+    ].join('\n');
 
-			db.query(query, function(error,result){
-				if (error)
-					console.log('Error getting user of id ' + req.params.userId + ' : ' + error);
-				else
-					res.send(result);
-			});	
-			*/
-	})
+    var params = {
+      userIdToEditParam: parseInt(req.params.userId),
+      nusOpenIdParam: req.body.nusOpenId,
+      canEditParam: req.body.canEdit,
+      nameParam: req.body.name,
+      isAdminParam: req.body.isAdmin, 
+    };
 
-	// update a user
-	.put(auth.ensureAuthenticated, auth.ensureSuperAdmin, function(req, res){
-		var query = [
-			'MATCH (u:user) WHERE ID(u)=' + req.params.userId,
-			'SET u.name={nameParam}, u.nusOpenId={nusOpenIdParam}, u.canEdit={canEditParam}, u.year={yearParam}',
-			'RETURN u'
-		].join('\n');
+    db.query(query, params, function(error, result){
+      if (error){
+        console.log('Error creating new user: ', error);
+      }
+      else{
+        console.log('[SUCCESS] User id ' + req.params.userId + ' edited.');
+        res.send(result[0]);
+      }
+    });
+  })
 
-		var params = {
-			nameParam: req.body.name,
-			nusOpenIdParam: req.body.nusOpenId,
-			canEditParam: req.body.canEdit,
-			yearParam: req.body.year,
-		};
+  // delete a user
+  .delete(auth.ensureAuthenticated, auth.ensureSuperAdmin, function(req, res){
+    var query = [
+      'MATCH (u:user) WHERE ID(u)={userIdToDeleteParam}',
+      'OPTIONAL MATCH (u)-[r]-()',
+      'DELETE u,r'
+    ].join('\n');
 
-		db.query(query, params, function(error, result){
-			if (error)
-				console.log('Error creating new user: ', error);
-			else
-				res.send(result[0]);
-		});
-	})
+    var params = {
+      userIdToDeleteParam: parseInt(req.params.userId)
+    };
 
-	// delete a user
-	.delete(auth.ensureAuthenticated, auth.ensureSuperAdmin, function(req, res){
-		var query = [
-			'MATCH (u:user) WHERE ID(u)=' + req.params.userId,
-			'DELETE u'
-		].join('\n');
-
-		db.query(query, function(error,result){
-			if (error)
-				console.log('Error deleting user id: ' + req.params.userId);
-			else
-				res.send(result[0]);
-		})
-	});
-
+    db.query(query, params, function(error,result){
+      if (error){
+        console.log(error);
+      }
+      else{
+        console.log('[SUCCESS] User id ' + req.params.userId + ' deleted.');
+        res.send('User id ' + req.params.userId + ' deleted.');
+      }
+    })
+  });
 
 module.exports = router;

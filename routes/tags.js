@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var auth = require('./auth');
-var apiCall = require('./apicall');
 var db = require('seraph')({
 	server: process.env.SERVER_URL || 'http://localhost:7474/', // 'http://studionetdb.design-automation.net'
 	user: process.env.DB_USER,
@@ -11,13 +10,16 @@ var db = require('seraph')({
 // route: /api/tags/
 router.route('/')
 
-	// return all tags
+	/*
+	 * Returns the list of all tags with name, createdBy, contributionCount, id
+	 */
 	.get(auth.ensureAuthenticated, function(req, res){
 		
 		// return only name and id associated with each tag
 		var query = [
 			'MATCH (t:tag) WITH t',
-			'RETURN {name: t.name, id: id(t)}'
+			'OPTIONAL MATCH ()-[r:TAGGED]->(t)',
+			'RETURN {name: t.name, createdBy: t.createdBy, contributionCount: count(r), id: id(t)}'
 		].join('\n');
 
 		db.query(query, function(error, result){

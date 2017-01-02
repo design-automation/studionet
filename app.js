@@ -2,10 +2,13 @@ var express = require('express');
 var session = require('express-session');
 var path = require('path');
 var favicon = require('serve-favicon');
-var logger = require('morgan');
+var logger = require('./config/logger');
 var cookieParser = require('cookie-parser');
 var passport = require('passport');
 var bodyParser = require('body-parser');
+var morgan = require('morgan');
+var url = require('url'); // for parsing url to reject image logs, remove if not needed
+
 
 // require route files
 var profile = require('./routes/profile');
@@ -19,9 +22,33 @@ var uploads = require('./routes/uploads');
 var graph_all = require('./routes/graph_all');
 var graph_med = require('./routes/graph_med');
 var contributions = require('./routes/contributions');
+var supernode = require('./routes/supernode');
 
+
+var logs = require('./routes/logs');
+//if (process.env.NODE_ENV === 'test')
+  var testdata = require('./routes/testdata');
 
 var app = express();
+
+// Logger configurations
+if (process.env.NODE_ENV !== 'test') {
+  morgan.token('userDetails', function(req, res){
+    return req.isAuthenticated() ? req.user.nusOpenId + ": " + req.user.name : "User not signed in";
+  });
+  morgan.token('date', function(req, res){
+    return new Date().toString();
+  });
+  var morganLogFormat = '[:remote-addr][:userDetails][:date] ":method :url HTTP/:http-version"\\n\
+  Status Code: :status, Content-Length: :res[content-length], Referrer: ":referrer", :response-time ms';
+  app.use(require('morgan')(morganLogFormat, { 
+    "stream": logger.stream,
+    skip: function(req, res) { // for parsing url to reject image logs, remove if not needed
+      var urlSource = url.parse(req.url).pathname.split('/')[1];
+      return ['assets', 'global'].indexOf(urlSource) > -1;  // don't log images, etc.
+    }
+  }));
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,9 +56,10 @@ app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
+//if (process.env.NODE_ENV !== 'test')
+// app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(cookieParser());
 // use express session
 app.use(session({ 
@@ -62,7 +90,12 @@ app.use('/api/tags', tags);
 app.use('/api/moderators', moderators);
 app.use('/api/relationships', relationships);
 app.use('/api/contributions', contributions);
+app.use('/api/supernode', supernode);
 app.use('/uploads', uploads);
+
+app.use('/api/logs', logs);
+//if (process.env.NODE_ENV === 'test')
+  app.use('/api/testdata', testdata);
 
 
 // catch 404 and forward to error handler

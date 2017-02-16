@@ -9,7 +9,6 @@
  *		General CSS
  */
 *{
-	/*padding: 0px;*/
 	margin: 0px; 
 }
 
@@ -46,8 +45,9 @@ h1, h2, h3, h4, h5 ,h6{
 }
 
 hr{
-	padding: 5px;
-	margin: 0px;
+	padding: 0px;
+	margin: 2px 0px;
+	border-bottom: 1px solid #B6B6b6;
 }
 
 a {
@@ -64,7 +64,7 @@ p{
 }
 
 img{
-	width: 300px;
+	max-width: 100%;
 }
 
 .container-fluid{
@@ -108,99 +108,18 @@ label{
 	opacity: 0.1 !important;
 }
 
-/*
- *  Top Nav CSS
- */
-nav{
-	position: fixed !important; 
-	top: 0px;
-	
-	width: 100%;
-	
-	padding: 0px !important;
+.pointer{
+	cursor: pointer;
 }
 
-nav .navbar-nav{
-	padding: 0px 0px !important;
-	z-index: 2;
-
+#brand{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 17px;
+	line-height: 20px;
+	font-weight: 900;
+	color: #4A95EF;
 }
 
-.navbar{
-	margin: 0px !important;
-	padding: 0px !important;
-	height: auto;
-
-}
-
-.navbar-default{
-	border: 0px;
-	border-color: none;
-}
-
-.navbar .navbar-collapse{
-	border: 0px !important;
-	box-shadow: none;
-	background-color: transparent;
-}
-
-.nav.navbar-nav{
-	height: 50px !important;   // top-bar height
-	margin: 0px 50px !important;
-
-	padding: 0px !important;
-}
-
-.navbar-left{
-	margin: 0px 30px !important;
-}
-
-.navbar-right{
-	margin: 0px 30px;
-	margin-left: 0px !important;
-    border-bottom-width: 0px !important;
-}
-
-.navbar-collapse{
-	padding: 0px;
-}
-
-.navbar-title{
-	padding: 0px !important;
-	font-weight: 900 !important;
-}
-
-.nav > li > a{
-	padding: 15px 0px;
-}
-
-.navbar-default .navbar-nav > li > a{
-	color: #4a95ef;
-}
-
-.navbar .navbar-collapse .navbar-nav > li.dropdown:hover .dropdown-menu {
-  transform: translate(0, -3px); }
-
-.navbar .navbar-collapse .navbar-nav > li.dropdown:hover:after {
-  transform: translate(-50%, -3px); 
-}
-
-#noDropdown > li.dropdown:hover:after {
-  display: none;
-  visibility: none;
-  opacity: none;
-  transform: none; 
-}
-
-.navbar .navbar-collapse .navbar-nav > li.dropdown.notification.warning a.dropdown-toggle .icon {
-    background-color: rgb(74, 149, 239);
-    color: #e7edee;
-}
-
-.dropdown-menu{
-	width: 150px !important;
-	min-width: 100px !important;
-}
 
 /*
  * App Body & Theme CSS
@@ -222,14 +141,14 @@ nav .navbar-nav{
 	height: 30px !important; 
 	width: 30px !important; 
 
-	border-radius: 50%;
+	border-radius: 0px;//50%;
 	font-size: 16px !important;
 
 	cursor: pointer;
 }
 
 .icon:hover{
-    transform: scale(1.1) rotate(7deg);
+    transform: none;//scale(1.1) rotate(7deg);
 }
 
 li.notification{
@@ -265,8 +184,9 @@ li.notification{
 	border-radius: 0px !important;
 }
 
-#cy{
-	background-color: #000623;
+
+.navbar .navbar-collapse .navbar-nav.navbar-mobile .navbar-brand .highlight{
+	background-color: #264E7D;
 }
 
 /*
@@ -274,30 +194,29 @@ li.notification{
  */
 
 .qtip-titlebar{
-
-	background-color: #FFF !important; 
+	max-width: 150px;
+	background-color: #000623 !important; 
 	padding: 0px 10px !important;
-	border-bottom: #B6B6B6;
-	padding: 10px 0px;
+	color: white;
+	//border-bottom: #B6B6B6;
+
 }
 
 .qtip-title{
-	line-height: 20px;
-	font-size: 16px;
-	font-weight: 600; 
-	border-bottom: 1px solid #b6b6b6;
+	font-weight: 300 !important; 
 }
 
 .qtip, .qtip-default{
-	background-color: #F0F0F0; 
-	border: 1px solid #8E8C8C;
+	background-color: #000623; 
+	color: #4A95EF;
+	border: 1px solid #4A95EF;
+	max-width: 150px;
 }
 
 .qtip-content{
 	font-size: 12px; 
 	line-height: 14px;
-	text-align: justify;
-	padding-bottom: 15px;	
+	text-align: center;
 }
 
 .qtip-btn:focus{
@@ -333,14 +252,6 @@ li.notification{
 }
 
 
-.btn.btn-default{
-	border-color: #b6b6b6;
-	height: 30px !important;
-	line-height: 30px;
-	margin: 0px !important;
-	border-radius: 0px !important;
-
-}
 
 
 /*
@@ -400,7 +311,7 @@ html {
 }
 /* optional: show position indicator in red */
 ::-webkit-scrollbar-thumb {
-    background: #FF0000;
+    //background: #FF0000;
 }
 
 
@@ -422,8 +333,6 @@ html {
 
 .modal-dialog{
   padding: 0px !important;
-  //height: 100%;
-  /*height: 500px;*/
   margin-top: 15px;
   margin-bottom: 15px;
 }
@@ -482,21 +391,69 @@ h4.modal-title{
 .modal-body{
     height: 100%;
     max-height: calc(100% - 105px);
-    padding: 0px !important;
+    padding: 15px !important;
     background-color: #F0F0F0;
     overflow-y: auto !important;
 }
 
 .modal-button{
-  margin: 15px 10px 0px 10px !important;
-  min-width: 80px;
-  height: 100% !important;
-  font-size: 15px;
-  font-family: 'Roboto Condensed', sans-serif;
-  padding: 0px; 
-  line-height: 40px; 
+	margin: 15px 10px 0px 10px !important;
+	min-width: 80px;
+	font-size: 15px;
+	font-family: 'Roboto Condensed', sans-serif;
+	padding: 0px; 
+	border-color: #B9B9B9;
+	height: 30px !important;
+	line-height: 30px;
+	margin: 0px !important;
+	border-radius: 0px !important;
 }
 
 .modal-section{
-  margin-top: 15px;
+	margin-top: 15px;
+}
+
+
+
+
+/*
+ * Tables CSS
+ */
+table.table > tbody > tr td, table.table > tbody > tr th, table.table > thead > tr td, table.table > thead > tr th{
+    padding: 2px 5px !important;
+}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td{
+    vertical-align: middle;
+}
+table.table > tbody > tr td, table.table > tbody > tr th, table.table > thead > tr td, table.table > thead > tr th{
+    font-size: 12px;
+}
+.table > caption + thead > tr:first-child > th, .table > colgroup + thead > tr:first-child > th, .table > thead:first-child > tr:first-child > th, .table > caption + thead > tr:first-child > td, .table > colgroup + thead > tr:first-child > td, .table > thead:first-child > tr:first-child > td{
+    max-width: 100px;
+}
+
+tbody{
+	max-height: 500px;
+	overflow-y: auto;
+}
+
+/*
+ * Pagination
+ */
+.pagination > li.active > a, .pagination > li.active > span{
+	border-bottom: 2px solid #b9b9b9;
+	background-color: #b6b6b6;
+}
+
+.pagination > li.active > a:hover, .pagination > li.active > a:focus, .pagination > li.active > span:hover, .pagination > li.active > span:focus{
+	border-bottom: 2px solid #b9b9b9;
+	background-color: #3B3B36;
+}
+
+/*
+ * ng-tags-input.css override
+ * to make more tags visible
+*/
+tags-input .autocomplete .suggestion-list{
+  max-height: 350px !important;
 }

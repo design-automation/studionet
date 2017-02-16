@@ -57,13 +57,13 @@ router.route('/')
 						+ 'MERGE (t:tag {name: tagName}) '
 						+ 'ON CREATE SET t.createdBy = {createdByParam}'
 						+ 'CREATE UNIQUE (c)-[r2:TAGGED]->(t) ',
-			'RETURN id(c) as id'
+			'RETURN c'
 		].join('\n');
 
 		var currentDate = Date.now();
 		var params = {
 			createdByParam: parseInt(req.user.id),
-			tagsParam: req.body.tags.split(","), //because form data has text string for tags   
+			//tagsParam: ( req.body.tags !== "" ?  : [] ), //because form data has text string for tags   
 			contributionTitleParam: req.body.title,
 			contributionBodyParam: req.body.body,
 			contributionRefParam: parseInt(req.body.ref), 
@@ -78,6 +78,12 @@ router.route('/')
 			viewsParam: 0
 		};
 
+    if(req.body.tags == "")
+      params.tagsParam = ""
+    else
+      params.tagsParam = req.body.tags.split(",");
+
+
 		db.query(query, params, function(error, result){
 			if (error){
 				console.log('[ERROR] Error creating new contribution for user : ', error);
@@ -88,8 +94,13 @@ router.route('/')
 				console.log('[SUCCESS] Success in creating a new contribution for user id: ' + req.user.id);
 				req.contributionId = result[0].id;
 				res.status(200);
+
+        // broadcasting message
+        req.app.get('socket').emit('node_created', result[0]);
+
 				res.send( result[0] );
-				next();
+				
+        next();
 			}
 		}); 
 
@@ -260,31 +271,19 @@ router.route('/:contributionId')
 
     var query = [
       'MATCH (c:contribution) WHERE ID(c)={contributionIdParam}',
-      'OPTIONAL MATCH (c)<-[rating5:RATED {rating: 5}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating4:RATED {rating: 4}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating3:RATED {rating: 3}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating2:RATED {rating: 2}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating1:RATED {rating: 1}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating0:RATED {rating: 0}]-(:user)',
       'OPTIONAL MATCH (a:attachment)<-[:ATTACHMENT]-(c)',
       'RETURN { \
-                ratingArray: [count(rating0), \
-                  count(rating1), count(rating2), \
-                  count(rating3), count(rating4), \
-                  count(rating5)], \
+                ratingArray: [ SIZE((:user)-[:RATED{rating: 5}]->(c)), SIZE((:user)-[:RATED{rating: 4}]->(c)), \
+                  SIZE((:user)-[:RATED{rating: 3}]->(c)), SIZE((:user)-[:RATED{rating: 2}]->(c)), \
+                  SIZE((:user)-[:RATED{rating: 1}]->(c))], \
                 id: ID(c),\
-                edited: c.edited, \
-                rating: c.rating, \
-                totalRating: c.totalRating, \
                 title: c.title, \
+                edited: c.edited, \
                 body: c.body, \
                 tags: c.tags, \
                 lastUpdated: c.lastUpdated, \
                 ref: c.ref, \
-                dateCreated: c.dateCreated, \
-                rateCount: c.rateCount, \
                 createdBy: c.createdBy, \
-                contentType: c.contentType, \
                 views: c.views, \
                 attachments: collect({ \
                   attachment: a, \
@@ -309,7 +308,9 @@ router.route('/:contributionId')
   })
 
   .put(auth.ensureAuthenticated, contributionUtil.initTempFileDest, multer({storage: storage.attachmentStorage}).array('attachments'), function(req, res, next){
-        req.body.tags = req.body.tags.split(","); //because form data has text string for tags   
+
+        //because form data has text string for tags   
+        req.body.tags = req.body.tags.split(",");
 
         var query = [
           'MATCH (c:contribution) WHERE ID(c)=' + req.params.contributionId,
@@ -337,8 +338,7 @@ router.route('/:contributionId')
           var newRef = req.body.ref;
 
           var oldTags = result.tags;
-          var newTags = req.body.tags || [];
-
+          var newTags = req.body.tags;
           var createdBy = result.createdBy;
           var changeRelationQuery = [];
           var changeTagsQuery = [];
@@ -392,7 +392,8 @@ router.route('/:contributionId')
               'UNWIND {tagsToAddParam} as tagToAdd',
               'MERGE (t2:tag {name: tagToAdd})',
               'ON CREATE SET t2.createdBy = {createdByParam}',
-              'CREATE UNIQUE (c3)-[:TAGGED]->(t2)'
+              'CREATE UNIQUE (c3)-[:TAGGED]->(t2)',
+              'RETURN c3'
             ];
           }
 
@@ -414,6 +415,7 @@ router.route('/:contributionId')
           };
 
           db.query(query, params, function(error, result){
+            
             if (error){
               console.log(error);
               res.status(500);
@@ -421,16 +423,22 @@ router.route('/:contributionId')
             }
             else{
               console.log('[SUCCESS] Success in editing the contribution with id: ' + req.params.contributionId);
-              req.contributionId = result[0].id;
+              //req.contributionId = result[0].id;
+              req.app.get('socket').emit('node_updated', req.params.contributionId); 
+
               res.status(200);
-              res.send( result[0] );
-              next();
+              res.send( "Contribution updated" );
+
+
+              //next();
             }
+
             
           });
 
         });
-  }, contributionUtil.updateDatabaseWithAttachmentsAndGenerateThumbnails)
+  })
+  //}, contributionUtil.updateDatabaseWithAttachmentsAndGenerateThumbnails)
 
   .delete(auth.ensureAuthenticated, function(req, res){
 
@@ -527,6 +535,7 @@ router.route('/:contributionId')
           res.send('Cannot delete this leaf');
         }
         else {
+          req.app.get('socket').emit('node_deleted', req.params.contributionId);
           res.send('Successfully deleted contribution with id: ' + req.params.contributionId);
         }
       })
@@ -582,6 +591,9 @@ router.route('/:contributionId/view')
         console.log(error);
       }
       else{
+        
+        req.app.get('socket').emit('node_viewed',   { id: req.params.contributionId, user: req.user.id } );
+        
         res.send('Successfully viewed contribution id: ' + req.params.contributionId);
       }
     });
@@ -603,7 +615,7 @@ router.route('/:contributionId/rate')
       'ON CREATE SET c.rating = (c.totalRating + {ratingParam})/toFloat(c.rateCount+1), c.rateCount = c.rateCount+1, c.totalRating = c.totalRating + {ratingParam}',
       'ON MATCH SET c.rating = (c.totalRating - r.rating + {ratingParam})/toFloat(c.rateCount), c.totalRating = c.totalRating - r.rating + {ratingParam}',
       'SET r.rating={ratingParam}, r.lastRated={lastRatedParam}',
-      'RETURN p'
+      'RETURN c'
     ].join('\n');
 
     var params = {
@@ -619,7 +631,13 @@ router.route('/:contributionId/rate')
       }
       else {
         console.log('[SUCCESS] Successfully rated contribution id ' + req.params.contributionId + ' with the rating ' + req.body.rating);
-        res.send('Successfully rated contribution id ' + req.params.contributionId + ' with the rating ' + req.body.rating);
+        
+        // broadcasting message
+        req.app.get('socket').emit('node_rated', result[0]);       
+        
+        // sending the contribution data
+        res.send(result[0]);
+      
       }
     })
   });

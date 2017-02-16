@@ -13,14 +13,6 @@ var idIndex = function (a, id){
   return null;
 }
 
-var setName = function (n) {
-    if (n.labels[0] === "contribution") {
-        return n.properties.title;
-    } else {
-        return n.properties.name;
-    }
-}
-
 var graphQuery = function (query, callback){
   var postData = {
     "statements": [
@@ -50,9 +42,6 @@ var graphQuery = function (query, callback){
     
     var headers = result.headers;
     var statusCode = result.statusCode;
-    //inspect(headers, 'headers')
-    //inspect(statusCode, 'statusCode')
-    //inspect(body, 'body')
     var nodes = [], links = [];
 
     var data = body.results[0].data;
@@ -61,14 +50,20 @@ var graphQuery = function (query, callback){
       // for each graph
 
       row.graph.nodes.forEach(function(n) {
-        n.type = n.labels[0];
-        n.name = setName(n);
         if (idIndex(nodes, n.id) == null)
             nodes.push({
-                id: n.id,
-                type: n.labels[0],
-                name: setName(n)
-            });
+                onSpiral: -1,                     // for graph
+                id: n.id,                         // for graph
+                type: n.properties.contentType,   // for graph
+                ref: n.properties.ref,            // for replies
+                title: n.properties.title,                // for qtip 
+                createdBy: n.properties.createdBy,                // for qtip
+                rating: n.properties.rating,      // for board + coloring
+                rateCount: n.properties.rateCount,  // for board
+                dateCreated: n.properties.dateCreated,  // for board
+                totalRatings: n.properties.totalRating, // for board
+                views: n.properties.views     // for board
+            }); 
       });
 
       links = links.concat(row.graph.relationships.map(function(r) {
@@ -82,13 +77,18 @@ var graphQuery = function (query, callback){
 
     });
 
+
+    
     callback({
       nodes: nodes, 
       links: links
-    });
+    }); 
 
   });
 
 }
 
 module.exports = graphQuery;
+
+
+

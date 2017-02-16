@@ -6,7 +6,11 @@ module.exports.relationships = [
 		"target_type" : "contribution",
 		"name" : "QUESTION_FOR"
 	},
-
+	{
+		"src_type" : "contribution",
+		"target_type" : "contribution",
+		"name" : "SUBMISSION_FOR"
+	},
 	{
 		"src_type" : "contribution",
 		"target_type" : "contribution",
@@ -71,3 +75,7 @@ module.exports.relationships = [
 
 
 ]
+
+
+// viewing, rating, creating
+module.exports.activityWeights = [ 0.05, 0.1, 0.5 ]

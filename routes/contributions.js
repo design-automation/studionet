@@ -57,13 +57,13 @@ router.route('/')
 						+ 'MERGE (t:tag {name: tagName}) '
 						+ 'ON CREATE SET t.createdBy = {createdByParam}'
 						+ 'CREATE UNIQUE (c)-[r2:TAGGED]->(t) ',
-			'RETURN id(c) as id'
+			'RETURN c'
 		].join('\n');
 
 		var currentDate = Date.now();
 		var params = {
 			createdByParam: parseInt(req.user.id),
-			tagsParam: req.body.tags,
+			//tagsParam: ( req.body.tags !== "" ?  : [] ), //because form data has text string for tags   
 			contributionTitleParam: req.body.title,
 			contributionBodyParam: req.body.body,
 			contributionRefParam: parseInt(req.body.ref), 
@@ -78,20 +78,12 @@ router.route('/')
 			viewsParam: 0
 		};
 
-		/*
-		 *	Only to allow creationg of synthetic data; 
-		 *	Changes creating user from actual user to user specified;
-		 *	!! Remove in production
-		 * 
-		 */
-		if(auth.ensureSuperAdmin && req.body.author && req.body.createdAt){
+    if(req.body.tags == "")
+      params.tagsParam = ""
+    else
+      params.tagsParam = req.body.tags.split(",");
 
-			params.createdByParam = parseInt(req.body.author);		// remove in production
-			params.dateCreatedParam = new Date(req.body.createdAt).getTime();
-			params.lastUpdatedParam = new Date(req.body.createdAt).getTime();
-		}
 
-		
 		db.query(query, params, function(error, result){
 			if (error){
 				console.log('[ERROR] Error creating new contribution for user : ', error);
@@ -102,8 +94,13 @@ router.route('/')
 				console.log('[SUCCESS] Success in creating a new contribution for user id: ' + req.user.id);
 				req.contributionId = result[0].id;
 				res.status(200);
+
+        // broadcasting message
+        req.app.get('socket').emit('node_created', result[0]);
+
 				res.send( result[0] );
-				next();
+				
+        next();
 			}
 		}); 
 
@@ -274,31 +271,19 @@ router.route('/:contributionId')
 
     var query = [
       'MATCH (c:contribution) WHERE ID(c)={contributionIdParam}',
-      'OPTIONAL MATCH (c)<-[rating5:RATED {rating: 5}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating4:RATED {rating: 4}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating3:RATED {rating: 3}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating2:RATED {rating: 2}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating1:RATED {rating: 1}]-(:user) ',
-      'OPTIONAL MATCH (c)<-[rating0:RATED {rating: 0}]-(:user)',
       'OPTIONAL MATCH (a:attachment)<-[:ATTACHMENT]-(c)',
       'RETURN { \
-                ratingArray: [count(rating0), \
-                  count(rating1), count(rating2), \
-                  count(rating3), count(rating4), \
-                  count(rating5)], \
+                ratingArray: [ SIZE((:user)-[:RATED{rating: 5}]->(c)), SIZE((:user)-[:RATED{rating: 4}]->(c)), \
+                  SIZE((:user)-[:RATED{rating: 3}]->(c)), SIZE((:user)-[:RATED{rating: 2}]->(c)), \
+                  SIZE((:user)-[:RATED{rating: 1}]->(c))], \
                 id: ID(c),\
-                edited: c.edited, \
-                rating: c.rating, \
-                totalRating: c.totalRating, \
                 title: c.title, \
+                edited: c.edited, \
                 body: c.body, \
                 tags: c.tags, \
                 lastUpdated: c.lastUpdated, \
                 ref: c.ref, \
-                dateCreated: c.dateCreated, \
-                rateCount: c.rateCount, \
                 createdBy: c.createdBy, \
-                contentType: c.contentType, \
                 views: c.views, \
                 attachments: collect({ \
                   attachment: a, \
@@ -322,126 +307,138 @@ router.route('/:contributionId')
 
   })
 
-  .put(auth.ensureAuthenticated, function(req, res){
-    console.log(req.body);
+  .put(auth.ensureAuthenticated, contributionUtil.initTempFileDest, multer({storage: storage.attachmentStorage}).array('attachments'), function(req, res, next){
 
-    var query = [
-      'MATCH (c:contribution) WHERE ID(c)=' + req.params.contributionId,
-      'RETURN c'
-    ].join('\n');
+        //because form data has text string for tags   
+        req.body.tags = req.body.tags.split(",");
 
-    var params;
-    var oldRef; // previous ref of the contribution
+        var query = [
+          'MATCH (c:contribution) WHERE ID(c)=' + req.params.contributionId,
+          'RETURN c'
+        ].join('\n');
 
-    // Check the current contribution ref
-    var contributionPromise =  new Promise(function(resolve, reject){
-      db.query(query, function(error, result){
-        if (error){
-          return reject();
-        }
-        else {
-          return resolve(result[0]);
-        }
-      });
-    });
+        var params;
+        var oldRef; // previous ref of the contribution
 
-    contributionPromise
-    .then(function(result){
-      var oldRef = result.ref;
-      var newRef = req.body.ref;
+        // Check the current contribution ref
+        var contributionPromise =  new Promise(function(resolve, reject){
+          db.query(query, function(error, result){
+            if (error){
+              return reject();
+            }
+            else {
+              return resolve(result[0]);
+            }
+          });
+        });
 
-      var oldTags = result.tags;
-      var newTags = req.body.tags || [];
+        contributionPromise
+        .then(function(result){
+          var oldRef = result.ref;
+          var newRef = req.body.ref;
 
-      var createdBy = result.createdBy;
-      var changeRelationQuery = [];
-      var changeTagsQuery = [];
-      var tagsAddQuery = [];
-      var tagsRemoveQuery = [];
+          var oldTags = result.tags;
+          var newTags = req.body.tags;
+          var createdBy = result.createdBy;
+          var changeRelationQuery = [];
+          var changeTagsQuery = [];
+          var tagsAddQuery = [];
+          var tagsRemoveQuery = [];
 
-      if (createdBy !== parseInt(req.user.id)) {
-        return res.send('Cannot edit contribution that was not created by you');
-      }
+          if (createdBy !== parseInt(req.user.id)) {
+            return res.send('Cannot edit contribution that was not created by you');
+          }
 
-      editContributionDetailsQuery = [
-        'MATCH (c3:contribution) WHERE ID(c3)={contributionIdParam}',
-        'SET c3.title = {contributionTitleParam}',
-        'SET c3.body = {contributionBodyParam}',
-        'SET c3.tags = {tagsParam}',
-        'SET c3.ref = {contributionRefParam}',
-        'SET c3.lastUpdated = {lastUpdatedParam}',
-        'SET c3.edited = {editedParam}',
-        'SET c3.contentType = {contentTypeParam}',
-      ];
+          editContributionDetailsQuery = [
+            'MATCH (c3:contribution) WHERE ID(c3)={contributionIdParam}',
+            'SET c3.title = {contributionTitleParam}',
+            'SET c3.body = {contributionBodyParam}',
+            'SET c3.tags = {tagsParam}',
+            'SET c3.ref = {contributionRefParam}',
+            'SET c3.lastUpdated = {lastUpdatedParam}',
+            'SET c3.edited = {editedParam}',
+            'SET c3.contentType = {contentTypeParam}',
+          ];
 
-      if (!(oldTags instanceof Array)) {
-        oldTags = [oldTags];
-      }
+          if (!(oldTags instanceof Array)) {
+            oldTags = [oldTags];
+          }
 
-      if (!(newTags instanceof Array)) {
-        newTags = [newTags];
-      }
+          if (!(newTags instanceof Array)) {
+            newTags = [newTags];
+          }
 
-      var tagsToRemove = _.difference(oldTags, newTags);
-      var tagsToAdd = _.difference(newTags, oldTags);
+          var tagsToRemove = _.difference(oldTags, newTags);
+          var tagsToAdd = _.difference(newTags, oldTags);
 
-      // remove old tags
-      if (tagsToRemove.length > 0) {
-        tagsRemoveQuery = [
-          'WITH c3',
-          'UNWIND {tagsToRemoveParam} as tagToRemove',
-          'OPTIONAL MATCH (c3)-[r1:TAGGED]->(t1:tag {name: tagToRemove})',
-          'DELETE r1',
-          'WITH c3,t1',
-          'OPTIONAL MATCH (t1)<-[r2:TAGGED]-()',
-          'WITH c3, t1, CASE WHEN count(r2)>0 THEN [] ELSE [1] END as array',
-          'FOREACH (x in array | DELETE t1)',
-        ];
-      }
+          // remove old tags
+          if (tagsToRemove.length > 0) {
+            tagsRemoveQuery = [
+              'WITH c3',
+              'UNWIND {tagsToRemoveParam} as tagToRemove',
+              'OPTIONAL MATCH (c3)-[r1:TAGGED]->(t1:tag {name: tagToRemove})',
+              'DELETE r1',
+              'WITH c3,t1',
+              'OPTIONAL MATCH (t1)<-[r2:TAGGED]-()',
+              'WITH c3, t1, CASE WHEN count(r2)>0 THEN [] ELSE [1] END as array',
+              'FOREACH (x in array | DELETE t1)',
+            ];
+          }
 
-      // add new tags
-      if (tagsToAdd.length > 0) {
-        tagsAddQuery = [
-          'WITH c3',
-          'UNWIND {tagsToAddParam} as tagToAdd',
-          'MERGE (t2:tag {name: tagToAdd})',
-          'ON CREATE SET t2.createdBy = {createdByParam}',
-          'CREATE UNIQUE (c3)-[:TAGGED]->(t2)'
-        ];
-      }
+          // add new tags
+          if (tagsToAdd.length > 0) {
+            tagsAddQuery = [
+              'WITH c3',
+              'UNWIND {tagsToAddParam} as tagToAdd',
+              'MERGE (t2:tag {name: tagToAdd})',
+              'ON CREATE SET t2.createdBy = {createdByParam}',
+              'CREATE UNIQUE (c3)-[:TAGGED]->(t2)',
+              'RETURN c3'
+            ];
+          }
 
-      var query = changeRelationQuery.concat(editContributionDetailsQuery, tagsRemoveQuery, tagsAddQuery).join('\n');
+          var query = changeRelationQuery.concat(editContributionDetailsQuery, tagsRemoveQuery, tagsAddQuery).join('\n');
 
-      var params = {
-        tagsToRemoveParam: tagsToRemove,
-        tagsToAddParam: tagsToAdd,
-        contributionIdParam: parseInt(req.params.contributionId),
-        tagsParam: newTags,
-        contributionTitleParam: req.body.title,
-        contributionBodyParam: req.body.body,
-        contributionRefParam: parseInt(req.body.ref), 
-        lastUpdatedParam: Date.now(),
-        //refTypeParam: req.body.refType,
-        editedParam: true,
-        createdByParam: req.user.id,
-        contentTypeParam: req.body.contentType,
-      };
+          var params = {
+            tagsToRemoveParam: tagsToRemove,
+            tagsToAddParam: tagsToAdd,
+            contributionIdParam: parseInt(req.params.contributionId),
+            tagsParam: newTags,
+            contributionTitleParam: req.body.title,
+            contributionBodyParam: req.body.body,
+            contributionRefParam: parseInt(req.body.ref), 
+            lastUpdatedParam: Date.now(),
+            //refTypeParam: req.body.refType,
+            editedParam: true,
+            createdByParam: req.user.id,
+            contentTypeParam: req.body.contentType,
+          };
 
-      db.query(query, params, function(error, result){
-        if (error){
-          console.log(error);
-          res.status(500);
-          res.send('[ERROR] Cannot edit the given contribution with id: ' + req.params.contributionId);
-        }
-        else{
-          res.status(200);
-          res.send(result[0]);
-          console.log('[SUCCESS] Success in editing the contribution with id: ' + req.params.contributionId);
-        }
-      });
+          db.query(query, params, function(error, result){
+            
+            if (error){
+              console.log(error);
+              res.status(500);
+              res.send('[ERROR] Cannot edit the given contribution with id: ' + req.params.contributionId);
+            }
+            else{
+              console.log('[SUCCESS] Success in editing the contribution with id: ' + req.params.contributionId);
+              //req.contributionId = result[0].id;
+              req.app.get('socket').emit('node_updated', req.params.contributionId); 
 
-    });
-  }) 
+              res.status(200);
+              res.send( "Contribution updated" );
+
+
+              //next();
+            }
+
+            
+          });
+
+        });
+  })
+  //}, contributionUtil.updateDatabaseWithAttachmentsAndGenerateThumbnails)
 
   .delete(auth.ensureAuthenticated, function(req, res){
 
@@ -485,7 +482,15 @@ router.route('/:contributionId')
           return res.send('Cannot delete contribution that was not created by you');
         }
 
-        deleteAttachmentsFromFileAndDbAsync(parseInt(req.params.contributionId));
+        // Donot allow deletion of non leaf nodes
+        if( incomingRelsCount > 0){
+          res.status(500);
+          return res.send('Cannot delete non-leaf contributions');
+        }
+        else{
+          deleteAttachmentsFromFileAndDbAsync(parseInt(req.params.contributionId));
+        }
+        /*
         if (incomingRelsCount > 0) {
           var query = [
             'MATCH (c:contribution) WHERE ID(c)={contributionIdParam}',
@@ -508,7 +513,7 @@ router.route('/:contributionId')
               console.log(error);
           })
           return res.send('Deleted non-leaf node attachments and marked contribution as deleted');
-        }
+        } */
         resolve();
       })
 
@@ -530,6 +535,7 @@ router.route('/:contributionId')
           res.send('Cannot delete this leaf');
         }
         else {
+          req.app.get('socket').emit('node_deleted', req.params.contributionId);
           res.send('Successfully deleted contribution with id: ' + req.params.contributionId);
         }
       })
@@ -585,6 +591,9 @@ router.route('/:contributionId/view')
         console.log(error);
       }
       else{
+        
+        req.app.get('socket').emit('node_viewed',   { id: req.params.contributionId, user: req.user.id } );
+        
         res.send('Successfully viewed contribution id: ' + req.params.contributionId);
       }
     });
@@ -606,7 +615,7 @@ router.route('/:contributionId/rate')
       'ON CREATE SET c.rating = (c.totalRating + {ratingParam})/toFloat(c.rateCount+1), c.rateCount = c.rateCount+1, c.totalRating = c.totalRating + {ratingParam}',
       'ON MATCH SET c.rating = (c.totalRating - r.rating + {ratingParam})/toFloat(c.rateCount), c.totalRating = c.totalRating - r.rating + {ratingParam}',
       'SET r.rating={ratingParam}, r.lastRated={lastRatedParam}',
-      'RETURN p'
+      'RETURN c'
     ].join('\n');
 
     var params = {
@@ -622,7 +631,13 @@ router.route('/:contributionId/rate')
       }
       else {
         console.log('[SUCCESS] Successfully rated contribution id ' + req.params.contributionId + ' with the rating ' + req.body.rating);
-        res.send('Successfully rated contribution id ' + req.params.contributionId + ' with the rating ' + req.body.rating);
+        
+        // broadcasting message
+        req.app.get('socket').emit('node_rated', result[0]);       
+        
+        // sending the contribution data
+        res.send(result[0]);
+      
       }
     })
   });

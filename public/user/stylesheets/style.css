@@ -1,4 +1,4 @@
-@import 'https://fonts.googleapis.com/css?family=Roboto+Condensed:300, 600, 900|Open+Sans:300,900';
+@import 'https://fonts.googleapis.com/css?family=Roboto:300, 600, 900|Open+Sans:300,900';
 
 .border{ 
 	border: 1px solid black;
@@ -9,8 +9,16 @@
  *		General CSS
  */
 *{
-	/*padding: 0px;*/
 	margin: 0px; 
+}
+
+.row{
+	margin-right: 0px !important;
+	margin-left: 0px !important;
+}
+
+.row > [class*="col-"]{
+	padding: 0px !important; 
 }
 
 html{
@@ -25,17 +33,25 @@ body {
 	font-family: 'Open Sans', sans-serif;
 	font-size: 12px;
 
-	background: white;
-
 }
 
 h1, h2, h3, h4, h5 ,h6{
-	font-family: 'Roboto Condensed', sans-serif;
-	font-weight: 900;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
+
+	padding: 0px !important;
+	margin: 0px;
+	margin-bottom: 4px;
+}
+
+hr{
+	padding: 0px;
+	margin: 2px 0px;
+	border-bottom: 1px solid #B6B6b6;
 }
 
 a {
-  color: #00B7FF;
+  color: #000000;
 }
 
 a:hover, a:visited, a:focus{
@@ -44,10 +60,11 @@ a:hover, a:visited, a:focus{
 
 p{
 	font-size: 12px !important;
+	margin:0px !important;
 }
 
 img{
-	width: 300px;
+	max-width: 100%;
 }
 
 .container-fluid{
@@ -87,82 +104,22 @@ label{
 	font-family: 'Open Sans', sans-serif;
 }
 
-
-/*
- *  Top Nav CSS
- */
-nav{
-	position: fixed !important; 
-	top: 0px;
-	
-	width: 100%;
-	
-	padding: 0px !important;
+.modal-backdrop{
+	opacity: 0.1 !important;
 }
 
-nav .navbar-nav{
-	padding: 0px 0px !important;
-	z-index: 2;
-
+.pointer{
+	cursor: pointer;
 }
 
-.navbar{
-	margin: 0px !important;
-	padding: 0px !important;
-	height: auto;
-
+#brand{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 17px;
+	line-height: 20px;
+	font-weight: 900;
+	color: #4A95EF;
 }
 
-.nav.navbar-nav{
-	height: 50px !important;   // top-bar height
-	margin: 0px 50px !important;
-
-	padding: 0px !important;
-}
-
-.navbar-left{
-	margin: 0px 50px !important;
-}
-
-.navbar-right{
-	margin: 0px 25px;
-	margin-left: 0px !important;
-    border-bottom-width: 0px !important;
-}
-
-.navbar-collapse{
-	padding: 0px;
-}
-
-.navbar-title{
-	padding: 0px !important;
-	margin-right: 100px;
-	font-weight: 900 !important;
-}
-
-.navbar .navbar-collapse .navbar-nav > li.dropdown:hover .dropdown-menu {
-  transform: translate(0, -3px); }
-
-.navbar .navbar-collapse .navbar-nav > li.dropdown:hover:after {
-  transform: translate(-50%, -3px); 
-}
-
-#noDropdown > li.dropdown:hover:after {
-  display: none;
-  visibility: none;
-  opacity: none;
-  transform: none; 
-}
-
-.navbar .navbar-collapse .navbar-nav > li.dropdown.notification.warning a.dropdown-toggle .icon {
-    background-color: rgb(74, 149, 239);
-    color: #e7edee;
-}
-
-.dropdown-menu{
-	width: 150px !important;
-	min-width: 100px !important;
-}
 
 /*
  * App Body & Theme CSS
@@ -171,10 +128,12 @@ nav .navbar-nav{
 	position: relative !important; 
 
 	width: 100% !important; 
-	height: calc(100vh - 50px)
+	height: calc(100vh - 50px);
 
 	margin: 0px !important; 
 	padding: 0px !important;
+
+	background-color: #000623;
 
 }
 
@@ -182,14 +141,14 @@ nav .navbar-nav{
 	height: 30px !important; 
 	width: 30px !important; 
 
-	border-radius: 50%;
+	border-radius: 0px;//50%;
 	font-size: 16px !important;
 
 	cursor: pointer;
 }
 
 .icon:hover{
-    transform: scale(1.1) rotate(7deg);
+    transform: none;//scale(1.1) rotate(7deg);
 }
 
 li.notification{
@@ -204,33 +163,60 @@ li.notification{
 	padding: 0px 0px !important;
 }
 
-.nav-tabs > li.active a, .nav-tabs > li.active a:focus, .nav-tabs > li.active a:hover{
-	border-bottom: 4px solid #4386D7 !important;
-	color: #4386D7 !important;
+.nav-tabs{
+	border: 0px; 
 }
 
+.nav-tabs > li a, .nav-tabs > li a:focus, .nav-tabs > li a:hover{
+	padding: 5px 20px !important; 
+}
+
+
+.nav-tabs > li.active a, .nav-tabs > li.active a:focus, .nav-tabs > li.active a:hover{
+	border-bottom: 4px solid #787C80 !important;
+	color: #787C80 !important;
+}
+
+.nav-tabs > li > a{
+	padding: 5px 20px; 
+	margin: 10px;
+	border: 1px solid #787C80 !important;
+	border-radius: 0px !important;
+}
+
+
+.navbar .navbar-collapse .navbar-nav.navbar-mobile .navbar-brand .highlight{
+	background-color: #264E7D;
+}
 
 /*
  * qTip CSS
  */
 
 .qtip-titlebar{
-	//height: 30px; 
-	line-height: 32px;
-	font-size: 16px; 
-	background-color: #DFDDDD !important; 
+	max-width: 150px;
+	background-color: #000623 !important; 
 	padding: 0px 10px !important;
+	color: white;
+	//border-bottom: #B6B6B6;
+
+}
+
+.qtip-title{
+	font-weight: 300 !important; 
 }
 
 .qtip, .qtip-default{
-	background-color: #F7F7F7; 
-	border: 1px solid #8E8C8C;
-	font-size: 12px; 
-	line-height: 16px;
+	background-color: #000623; 
+	color: #4A95EF;
+	border: 1px solid #4A95EF;
+	max-width: 150px;
 }
 
-.qtip-btn{
-	padding: 0px !important; 
+.qtip-content{
+	font-size: 12px; 
+	line-height: 14px;
+	text-align: center;
 }
 
 .qtip-btn:focus{
@@ -246,13 +232,228 @@ li.notification{
 	overflow: auto;
 }
 
+.wide{
+  width: 100% !important;
+}
+
+
+/*
+ * Cards
+ */
 
 .card{
-  padding: 10px 20px;
+  padding: 10px 10px;
   margin-bottom: 15px;
   z-index: 100;
 }
 
 .card:hover{
   background-color: #BBBBBB;
+}
+
+
+
+
+/*
+ * Panel & Accordian CSS
+ */
+.panel-group .panel{
+	border-radius: 0px;
+}
+
+.panel-body{
+	background-color: #F0F0F0 !important;
+	padding: 0px !important;
+}
+
+.sub-accordion{
+	margin-top: 2px;
+	margin-bottom: 3px;
+	margin-left: 18px;
+	margin-right: 22px;
+}
+
+.panel{
+	border-color:#c6c6c6;
+}
+
+.panel .panel-heading {
+	background-color: white !important;
+	border-top-left-radius: 0px !important;
+	border-top-right-radius: 0px !important;
+	padding: 5px;
+}
+
+.panel .panel-body {
+	padding-top: 5px;
+	padding-bottom: 8px;
+	//padding-left: 15px;
+	padding-right: 0px;
+	background-color: white;
+	border-bottom-left-radius: 4px !important;
+	border-bottom-right-radius: 4px !important;
+}
+
+.panel-group{
+	
+	margin-bottom: 0px;
+}
+
+
+
+html {
+    overflow: scroll;
+    overflow-x: hidden;
+}
+::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+}
+/* optional: show position indicator in red */
+::-webkit-scrollbar-thumb {
+    //background: #FF0000;
+}
+
+
+/*
+ * Modal Styles
+ */
+
+
+.modal-header .close { 
+  float: right;
+  margin-right: 5px;
+}
+
+.modal{
+  height: 100%; 
+  width: 100%;
+  overflow-y: scroll;
+}
+
+.modal-dialog{
+  padding: 0px !important;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.modal-content{
+  position: relative;
+  overflow-y: hidden !important;
+  box-shadow: none !important;
+  border: 1px solid #B6B6B6 !important;
+  border-radius: 0px !important;
+}
+
+
+/*
+ * Modal Header
+ */
+.modal-header{
+    height: 45px;
+    padding: 10px 0px 10px 0px !important;
+    border-bottom: 1px solid #B6B6B6 !important;
+    overflow: hidden !important; /*important*/
+    display: none;
+}
+
+.close{ 
+    line-height: 25px !important;
+}
+
+h4.modal-title{
+    line-height: 25px;
+    text-align: center !important;
+    font-size: 16px !important; 
+}
+
+
+/*
+ * Modal footer
+ */
+
+.modal-footer{
+  bottom: 0px;
+  width: 100%; 
+  height: 60px;
+  padding: 7.5px 30px !important;
+
+  //border-top: 1px solid #B6B6B6 !important;
+  background-color: #F0F0F0 !important;
+
+  display: none;
+}
+
+
+/*
+ * Modal Body
+ */
+.modal-body{
+    height: 100%;
+    max-height: calc(100% - 105px);
+    padding: 15px !important;
+    background-color: #F0F0F0;
+    overflow-y: auto !important;
+}
+
+.modal-button{
+	margin: 15px 10px 0px 10px !important;
+	min-width: 80px;
+	font-size: 15px;
+	font-family: 'Roboto Condensed', sans-serif;
+	padding: 0px; 
+	border-color: #B9B9B9;
+	height: 30px !important;
+	line-height: 30px;
+	margin: 0px !important;
+	border-radius: 0px !important;
+}
+
+.modal-section{
+	margin-top: 15px;
+}
+
+
+
+
+/*
+ * Tables CSS
+ */
+table.table > tbody > tr td, table.table > tbody > tr th, table.table > thead > tr td, table.table > thead > tr th{
+    padding: 2px 5px !important;
+}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td{
+    vertical-align: middle;
+}
+table.table > tbody > tr td, table.table > tbody > tr th, table.table > thead > tr td, table.table > thead > tr th{
+    font-size: 12px;
+}
+.table > caption + thead > tr:first-child > th, .table > colgroup + thead > tr:first-child > th, .table > thead:first-child > tr:first-child > th, .table > caption + thead > tr:first-child > td, .table > colgroup + thead > tr:first-child > td, .table > thead:first-child > tr:first-child > td{
+    max-width: 100px;
+}
+
+tbody{
+	max-height: 500px;
+	overflow-y: auto;
+}
+
+/*
+ * Pagination
+ */
+.pagination > li.active > a, .pagination > li.active > span{
+	border-bottom: 2px solid #b9b9b9;
+	background-color: #b6b6b6;
+}
+
+.pagination > li.active > a:hover, .pagination > li.active > a:focus, .pagination > li.active > span:hover, .pagination > li.active > span:focus{
+	border-bottom: 2px solid #b9b9b9;
+	background-color: #3B3B36;
+}
+
+/*
+ * ng-tags-input.css override
+ * to make more tags visible
+*/
+tags-input .autocomplete .suggestion-list{
+  max-height: 350px !important;
 }

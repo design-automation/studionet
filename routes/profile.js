@@ -10,20 +10,25 @@ var db = require('seraph')({
 // route: /api/profile (profile summary)
 // get information about the current user
 router.get('/', auth.ensureAuthenticated, function(req, res){
+
+  if(req.user.isGuest)
+    res.send(req.user);
+
   var query = [
     'MATCH (u:user) WHERE ID(u)={userIdParam}',
     'WITH u',
     'OPTIONAL MATCH p1=(g:group)-[r:MEMBER]->(u)',
-    'WITH collect({id: id(g), name: g.name, role: r.role, joinedOn: r.joinedOn, restricted: g.restricted, description: g.description}) as groups, u',
+    'WITH collect({id: id(g), role: r.role, joinedOn: r.joinedOn}) as groups, u',
     'OPTIONAL MATCH p2=(c:contribution)<-[r1:CREATED]-(u)',
     //'WITH groups, collect({id: id(c), title: c.title, lastUpdated: c.lastUpdated, contentType: c.contentType, rating: c.rating, rateCount: c.rateCount, views: c.views, tags: c.tags}) as contributions, u',
-    'WITH groups, collect({id: id(c), title: c.title}) as contributions, u',
+    'WITH groups, collect({id: id(c), title: c.title, rating: c.rating, rateCount: c.rateCount, views: c.views}) as contributions, u',
     'OPTIONAL MATCH p3=(t:tag)<-[r1:CREATED]-(u)',
-    'WITH groups, collect({id: id(t), name: t.name}) as tags, contributions, u',
+    'WITH groups, collect({id: id(t)}) as tags, contributions, u',
     'RETURN {\
               nusOpenId: u.nusOpenId,\
               canEdit: u.canEdit,\
               name: u.name,\
+              nickname: u.nickname,\
               addedOn: u.addedOn,\
               avatar: u.avatar,\
               joinedOn: u.joinedOn,\
@@ -60,12 +65,12 @@ router.put('/', auth.ensureAuthenticated, function(req, res){
   var query = [
     'MATCH (u:user) WHERE ID(u)={userIdParam}',
     'WITH u',
-    'SET u.name={nameParam}',
+    'SET u.nickname={nicknameParam}',
     'RETURN u'
   ].join('\n');
 
   var params = {
-      nameParam: req.body.name,
+      nicknameParam: req.body.nickname,
       userIdParam: req.user.id
     };
 
@@ -131,9 +136,9 @@ router.get('/groups', auth.ensureAuthenticated, function(req, res){
 })
 
 
-// route: /api/profile/contributions
+// route: /api/profile/activity
 // get the contributions that this user created
-router.get('/contributions', auth.ensureAuthenticated, function(req, res){
+router.get('/activity', auth.ensureAuthenticated, function(req, res){
   
   var query = [
     'MATCH (u:user) WHERE ID(u)={userIdParam}',
@@ -147,7 +152,7 @@ router.get('/contributions', auth.ensureAuthenticated, function(req, res){
 
   db.query(query, params, function(error, result){
     if (error)
-      console.log('Error getting current user\'s contributions');
+      console.log('Error getting current user\'s activity');
     else
       res.send(result);
   });

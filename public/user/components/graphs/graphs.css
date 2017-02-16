@@ -1,0 +1,131 @@
+/*
+ * Graph CSS
+ */
+
+.graph-container{
+  position: relative;
+  height: 100% !important;
+  margin-top: 0px !important;
+  z-index: 1;
+}
+
+#cy {
+
+  position: absolute;
+  margin-top: 0px;
+  min-height: calc( 100vh - 100px);
+  height: 100%; 
+  width: 100%;
+
+  z-index: 2;
+  background-color: #000623;
+
+
+}
+
+.graph-controls{
+  position: fixed;
+  top: 15px; 
+  right: 30px; // standard
+
+  height: auto;
+
+  z-index: 3;
+
+  color: #7A7B80;
+}
+
+
+.graph-nav-control{
+
+  position: relative !important;
+
+  width: 30px;
+  height: 30px;
+
+  line-height: 30px;
+  text-align: center;
+  
+  color: #B9B9B9;
+  background: #000623;
+  border: 1px solid;
+
+  margin: -1px 0px;
+  display: block;
+
+}
+
+.info-pane{
+  position: fixed;
+  top: 15px; !important  // standard
+
+  width: 200px;
+  max-width: 200px;
+  height: auto !important;
+  min-height: 10px;
+  margin-left: 30px !important;
+  margin-right: 30px !important;
+
+  z-index: 3;
+  color: #969696;
+  line-height: 25px;
+}
+
+#filter-shortcuts{
+  max-height: 70vh; 
+  overflow-y: auto;
+}
+
+
+h6.clear-filter-shortcut{
+  background-color: transparent;
+  color: lime; //#274F7F;
+  font-weight: 300;
+}
+
+h6.clear-filter-shortcut:hover{
+  //background-color: #4A95EF;
+  cursor: pointer;
+  font-weight: 600;
+  //border-width: 2px;
+}
+
+h6.clear-filter-shortcut:after{
+  margin-left: 10px;
+  content: "x";
+  font-weight: lighter;
+}
+
+
+
+
+
+@media screen and (max-width:600px) {
+    .info-pane{
+      margin-left: 10px !important;
+    }
+
+    .graph-controls{
+      right: 10px;
+    }
+
+    .modal-body{
+      padding: 7.5px !important;
+    }
+}
+
+
+
+/*.filter-heading-button{
+  background-color: transparent;
+  color: #274F7F;
+  border-bottom: 1px solid;
+  padding: 8px 0px;
+  cursor: pointer;
+}
+
+.filter-heading-button:after{
+  margin-left: 10px;
+  content: "\f14c";
+  font-family: FontAwesome;
+}*/
